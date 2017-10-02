@@ -6,8 +6,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.dutycode.opensource.redistools.exception.RedisLockException;
 import com.dutycode.opensource.redistools.utils.RedisUtils;
 
 /**
@@ -24,6 +25,9 @@ public class RedisLock {
 	// 默认超时时间
 	private final static long DEFAULT_TIMEOUT = 10000; // 10S
 
+	private static Logger logger = LoggerFactory.getLogger(RedisLock.class);
+	
+	
 	/**
 	 * 获取锁， 未获取到锁，将会自旋等待直到获取到锁或者超时
 	 * 
@@ -72,17 +76,20 @@ public class RedisLock {
 			args.add(lockVal);
 			args.add(String.valueOf(millTisLockTime));
 			Long res = (Long) RedisUtils.lua(luaScript, keys, args);
-			if (res != null) {
+			if (res != null && res.intValue() != 1) {
+				logger.info(String.format("%s get the lock successed, lock val=%s", lockkey, lockVal));
 				return lockVal;
 			} else {
 				// 未获取到锁，等待10ms之后，再次尝试获取锁
 				try {
 					TimeUnit.MILLISECONDS.sleep(10);
+					logger.info(String.format("%s  waitting get the lock ", lockkey));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+		logger.info(String.format("%s get the lock failed", lockkey));
 		return null;
 
 	}
@@ -114,11 +121,13 @@ public class RedisLock {
 		args.add(lockVal);
 		Long res = (Long) RedisUtils.lua(luaScipt, keys, args);
 
-		//下面这段判断逻辑可以去掉
-		if (res != null && res.intValue() == 1){
-			//锁释放成功 TODO 加日志
-		}else {
-			//锁释放失败 TODO 加日志
+		// 下面这段判断逻辑可以去掉
+		if (res != null && res.intValue() == 1) {
+			// 锁释放成功 TODO 加日志
+			logger.debug(String.format("%s unlock success, unlockval=%s", lockKey, lockVal));
+		} else {
+			// 锁释放失败 TODO 加日志
+			logger.debug(String.format("%s unlock failed, unlockval=%s", lockKey, lockVal));
 		}
 	}
 }
