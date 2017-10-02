@@ -75,14 +75,15 @@ public class RedisLock {
 			List<String> args = new ArrayList<String>();
 			args.add(lockVal);
 			args.add(String.valueOf(millTisLockTime));
+			
 			Long res = (Long) RedisUtils.lua(luaScript, keys, args);
-			if (res != null && res.intValue() != 1) {
+			if (res != null && res.intValue() == 1) {
 				logger.info(String.format("%s get the lock successed, lock val=%s", lockkey, lockVal));
 				return lockVal;
 			} else {
 				// 未获取到锁，等待10ms之后，再次尝试获取锁
 				try {
-					TimeUnit.MILLISECONDS.sleep(10);
+					TimeUnit.MILLISECONDS.sleep(100);
 					logger.info(String.format("%s  waitting get the lock ", lockkey));
 				} catch (InterruptedException e) {
 					e.printStackTrace();

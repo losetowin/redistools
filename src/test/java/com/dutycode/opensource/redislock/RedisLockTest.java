@@ -9,15 +9,18 @@ import com.dutycode.opensource.redistools.redislock.RedisLock;
 public class RedisLockTest {
 
 	@Test
-	public void testGetLock(){
+	public void testGetLock() {
 		String lockKey = "lock_test_key";
-		String val = RedisLock.tryLock(lockKey, 50, TimeUnit.SECONDS, 5);
-		System.out.println(val);
-		
-		for (int i =10; i < 10; i++){
-			RedisLock.tryLock(lockKey, 50, TimeUnit.SECONDS, 5);
+		for (int i = 0; i < 10; i++) {
+			String tmp = RedisLock.tryLock(lockKey, 10, TimeUnit.SECONDS, 5);
+			System.out.println(tmp);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		
+
 		try {
 			Thread.currentThread().join();
 		} catch (InterruptedException e) {
