@@ -31,7 +31,7 @@ public class RedisLockTest {
 
 	@Test
 	public void testReentrantLock() {
-		String lockKey = "lock_test_key1";
+		final String lockKey = "lock_test_key1";
 		String tmp = ReentrantRedisLock.tryLock(lockKey, 10, TimeUnit.SECONDS, 5);
 		System.out.println(tmp);
 		try {
@@ -51,24 +51,31 @@ public class RedisLockTest {
 		ReentrantRedisLock.unlock(lockKey, tmp);
 		
 		for (int i=0; i < 10; i++){
-			new Thread(new Runnable() {
+			
+			Thread t = new Thread(new Runnable() {
 				
 				@Override
 				public void run() {
 					ReentrantRedisLock.tryLock(lockKey, 10, TimeUnit.SECONDS, 5);
 				}
-			}).start();
+			});;
+			t.start();
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		
 		ReentrantRedisLock.unlock(lockKey, tmp);
 		
 		
-		try {
-			Thread.currentThread().join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.currentThread().join();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 }
