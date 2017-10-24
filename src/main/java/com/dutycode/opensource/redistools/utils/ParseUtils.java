@@ -12,6 +12,14 @@ public class ParseUtils {
 		}
 	}
 	
+	public static long getLong(String number, long defaultNum){
+		try {
+			return Long.parseLong(number);
+		}catch (Exception e){
+			return defaultNum;
+		}
+	}
+	
 	
 	/**
 	 * 获取字符串， 字符串为空时，则替换成默认的字符串。 

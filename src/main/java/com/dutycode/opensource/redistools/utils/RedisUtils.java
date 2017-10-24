@@ -113,4 +113,41 @@ public class RedisUtils {
 		}
 		return null;
 	}
+
+	public static Long setNx(String key, String val) {
+		Jedis jedis = getJedis();
+		try {
+			if (jedis != null) {
+				return jedis.setnx(key, val);
+			}
+		} catch (Exception e) {
+
+		} finally {
+			returnJedis(jedis);
+		}
+		return null;
+	}
+
+	public static String getSet(String key, String val) {
+		Jedis jedis = getJedis();
+		try {
+			if (jedis != null) {
+				return jedis.getSet(key, val);
+			}
+		} finally {
+			returnJedis(jedis);
+		}
+		return null;
+	}
+
+	public static void del(String key) {
+		Jedis jedis = getJedis();
+		try {
+			if (jedis != null) {
+				jedis.del(key);
+			}
+		} finally {
+			returnJedis(jedis);
+		}
+	}
 }
